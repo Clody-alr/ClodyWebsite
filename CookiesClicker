@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #a2d9ff, #e6f7ff);
+            position: relative;
+            overflow: hidden;
+        }
+        .cloud {
+            position: absolute;
+            background: white;
+            background: -webkit-linear-gradient(top, white 5%, #f0f0f0 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: -1;
+        }
+        .cloud:nth-child(1) {
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            left: 10%;
+        }
+        .cloud:nth-child(2) {
+            width: 220px;
+            height: 220px;
+            top: 8%;
+            left: 50%;
+        }
+        .cloud:nth-child(3) {
+            width: 180px;
+            height: 180px;
+            top: 15%;
+            left: 75%;
+        }
+        #clickButton {
+            width: 100px;
+            height: 100px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            outline: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #clickButton:active {
+            transform: scale(0.9);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #score span {
+            font-size: 24px;
+        }
+        .cookie {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #8b4513; /* Brown color for the cookie */
+            border-radius: 50%;
+            background-image: radial-gradient(circle, #8b4513 70%, #6f4e28 70%);
+            background-size: 5px 5px;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: cookie-rain 2s forwards;
+        }
+        .cookie::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 5px;
+            height: 5px;
+            background-color: #3b2d1f; /* Dark color for choco chips */
+            border-radius: 50%;
+        }
+        .cookie::after {
+            content: '';
+            position: absolute;
+            top: 40%;
+            left: 40%;
+            width: 5px;
+            height: 5px;
+            background-color: #3b2d1f;
+            border-radius: 50%;
+        }
+        .milky {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #ffffff; /* White color for the milk */
+            border-radius: 50%;
+            background-image: radial-gradient(circle, #ffffff 70%, #e0e0e0 70%);
+            background-size: 5px 5px;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            animation: milk-rain 2s forwards;
+        }
+        @keyframes cookie-rain {
+            0% {
+                transform: translateY(-100px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+        @keyframes milk-rain {
+            0% {
+                transform: translateY(-100px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+        #menuButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #menuButton:focus {
+            outline: none;
+        }
+        #menuContent {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            color: white;
+            text-align: center;
+            width: 200px;
+            font-size: 16px;
+            z-index: 1;
+        }
+        #menuContent button {
+            background: #e74c3c;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s;
+            margin: 5px 0;
+        }
+        #menuContent button:hover {
+            background: #c0392b;
+        }
+        #menuContent .info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        #rebirthButton {
+            margin-top: 10px;
+            background: #9b59b6;
+        }
+        #rebirthButton:hover {
+            background: #8e44ad;
+        }
+        #resetButton {
+            margin-top: 10px;
+            background: #e74c3c;
+            color: white;
+        }
+        #resetButton:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <button id="clickButton">Click</button>
+    <div id="score">
+        <span id="cookieCount">🍪 : 0</span>
+        <span id="crystalCount">💎 : 0</span>
+    </div>
+
+    <button id="menuButton">...</button>
+    <div id="menuContent">
+        <button id="upgradeButton">2x Cookies</button>
+        <div class="info">Cost: <span id="upgradeCost">100</span> Cookies</div>
+        <div class="info">Purchased: <span id="upgradeCount">0</span></div>
+        <button id="autoClickerButton">Auto Clicker</button>
+        <div class="info">Cost: <span id="autoClickerCost">500</span> Cookies</div>
+        <div class="info">Level: <span id="autoClickerLevel">0</span></div>
+        <button id="milkyButton">Milky</button>
+        <div class="info">Cost: <span id="milkyCost">1000</span> Cookies</div>
+        <div class="info">Level: <span id="milkyLevel">0</span></div>
+        <button id="rebirthButton">Rebirth</button>
+        <div class="info">Cost: <span id="rebirthCost">5000</span> Cookies</div>
+        <div class="info">Crystals: <span id="crystalCount">0</span></div>
+        <button id="resetButton">Reset</button>
+    </div>
+
+    <script>
+    let cookieCount = 0;
+    let crystalCount = 0;
+    let clickMultiplier = 1;
+    let autoClickerLevel = 0;
+    let milkyLevel = 0;
+    let upgradeCost = 100;
+    let autoClickerCost = 500;
+    let milkyCost = 1000;
+    let rebirthCost = 5000;
+
+    // Load data from local storage
+    if (localStorage.getItem('cookieCount')) {
+        cookieCount = parseInt(localStorage.getItem('cookieCount'), 10);
+    }
+    if (localStorage.getItem('crystalCount')) {
+        crystalCount = parseInt(localStorage.getItem('crystalCount'), 10);
+    }
+    if (localStorage.getItem('clickMultiplier')) {
+        clickMultiplier = parseInt(localStorage.getItem('clickMultiplier'), 10);
+    }
+    if (localStorage.getItem('autoClickerLevel')) {
+        autoClickerLevel = parseInt(localStorage.getItem('autoClickerLevel'), 10);
+    }
+    if (localStorage.getItem('milkyLevel')) {
+        milkyLevel = parseInt(localStorage.getItem('milkyLevel'), 10);
+    }
+    if (localStorage.getItem('upgradeCost')) {
+        upgradeCost = parseInt(localStorage.getItem('upgradeCost'), 10);
+    }
+    if (localStorage.getItem('autoClickerCost')) {
+        autoClickerCost = parseInt(localStorage.getItem('autoClickerCost'), 10);
+    }
+    if (localStorage.getItem('milkyCost')) {
+        milkyCost = parseInt(localStorage.getItem('milkyCost'), 10);
+    }
+    if (localStorage.getItem('rebirthCost')) {
+        rebirthCost = parseInt(localStorage.getItem('rebirthCost'), 10);
+    }
+
+    // Update display
+    function updateDisplay() {
+        document.getElementById('cookieCount').innerText = `🍪 : ${cookieCount}`;
+        document.getElementById('crystalCount').innerText = `💎 : ${crystalCount}`;
+        document.getElementById('upgradeCost').innerText = upgradeCost;
+        document.getElementById('autoClickerCost').innerText = autoClickerCost;
+        document.getElementById('milkyCost').innerText = milkyCost;
+        document.getElementById('rebirthCost').innerText = rebirthCost;
+        document.getElementById('autoClickerLevel').innerText = autoClickerLevel;
+        document.getElementById('milkyLevel').innerText = milkyLevel;
+    }
+
+    // Click button logic
+    document.getElementById('clickButton').addEventListener('click', () => {
+        cookieCount += clickMultiplier;
+        updateDisplay();
+        localStorage.setItem('cookieCount', cookieCount);
+        spawnCookie();
+    });
+
+    // Upgrade button logic
+    document.getElementById('upgradeButton').addEventListener('click', () => {
+        if (cookieCount >= upgradeCost) {
+            cookieCount -= upgradeCost;
+            clickMultiplier *= 2;
+            upgradeCost *= 2;
+            updateDisplay();
+            localStorage.setItem('cookieCount', cookieCount);
+            localStorage.setItem('clickMultiplier', clickMultiplier);
+            localStorage.setItem('upgradeCost', upgradeCost);
+        }
+    });
+
+    // Auto Clicker logic
+    document.getElementById('autoClickerButton').addEventListener('click', () => {
+        if (cookieCount >= autoClickerCost) {
+            cookieCount -= autoClickerCost;
+            autoClickerLevel++;
+            autoClickerCost *= 2;
+            updateDisplay();
+            localStorage.setItem('cookieCount', cookieCount);
+            localStorage.setItem('autoClickerLevel', autoClickerLevel);
+            localStorage.setItem('autoClickerCost', autoClickerCost);
+
+            if (autoClickerLevel === 1) {
+                setInterval(() => {
+                    if (autoClickerLevel > 0) {
+                        cookieCount += clickMultiplier * autoClickerLevel;
+                        updateDisplay();
+                        localStorage.setItem('cookieCount', cookieCount);
+                    }
+                }, 1000);
+            }
+        }
+    });
+
+    // Milky logic
+    document.getElementById('milkyButton').addEventListener('click', () => {
+        if (cookieCount >= milkyCost) {
+            cookieCount -= milkyCost;
+            milkyLevel++;
+            milkyCost *= 2;
+            updateDisplay();
+            localStorage.setItem('cookieCount', cookieCount);
+            localStorage.setItem('milkyLevel', milkyLevel);
+            localStorage.setItem('milkyCost', milkyCost);
+
+            if (milkyLevel === 1) {
+                setInterval(() => {
+                    if (milkyLevel > 0) {
+                        cookieCount += clickMultiplier * milkyLevel * 2;
+                        updateDisplay();
+                        localStorage.setItem('cookieCount', cookieCount);
+                    }
+                }, 1000);
+            }
+        }
+    });
+
+    // Rebirth logic
+    document.getElementById('rebirthButton').addEventListener('click', () => {
+        if (cookieCount >= rebirthCost) {
+            cookieCount = 0;
+            crystalCount++;
+            clickMultiplier = 1;
+            autoClickerLevel = 0;
+            milkyLevel = 0;
+            upgradeCost = 100;
+            autoClickerCost = 500;
+            milkyCost = 1000;
+            rebirthCost *= 2;
+            updateDisplay();
+            localStorage.setItem('cookieCount', cookieCount);
+            localStorage.setItem('crystalCount', crystalCount);
+            localStorage.setItem('clickMultiplier', clickMultiplier);
+            localStorage.setItem('autoClickerLevel', autoClickerLevel);
+            localStorage.setItem('milkyLevel', milkyLevel);
+            localStorage.setItem('upgradeCost', upgradeCost);
+            localStorage.setItem('autoClickerCost', autoClickerCost);
+            localStorage.setItem('milkyCost', milkyCost);
+            localStorage.setItem('rebirthCost', rebirthCost);
+        }
+    });
+
+    // Reset button logic
+    document.getElementById('resetButton').addEventListener('click', () => {
+        if (confirm("Are you sure you want to reset your progress?")) {
+            cookieCount = 0;
+            crystalCount = 0;
+            clickMultiplier = 1;
+            autoClickerLevel = 0;
+            milkyLevel = 0;
+            upgradeCost = 100;
+            autoClickerCost = 500;
+            milkyCost = 1000;
+            rebirthCost = 5000;
+            updateDisplay();
+            localStorage.clear();
+        }
+    });
+
+    // Menu button logic
+    document.getElementById('menuButton').addEventListener('click', () => {
+        const menuContent = document.getElementById('menuContent');
+        if (menuContent.style.display === 'none' || menuContent.style.display === '') {
+            menuContent.style.display = 'block';
+        } else {
+            menuContent.style.display = 'none';
+        }
+    });
+
+    // Spawn cookie animation
+    function spawnCookie() {
+        const cookie = document.createElement('div');
+        cookie.classList.add('cookie');
+        cookie.style.left = `${Math.random() * 100}vw`;
+        document.body.appendChild(cookie);
+        setTimeout(() => {
+            cookie.remove();
+        }, 2000);
+    }
+
+    // Initial display update
+    updateDisplay();
+    </script>
+</body>
+</html>
